@@ -34,5 +34,5 @@ clkgen.sv
 hw_top_dut.sv
 tb_top.sv
 
-+UVM_TESTNAME=uvm_reset_test
++UVM_TESTNAME=uvm_mem_walk_test
 +UVM_VERBOSITY=UVM_HIGH

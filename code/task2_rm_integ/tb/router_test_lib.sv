@@ -142,6 +142,36 @@ class uvm_reset_test extends base_test;
 
 endclass : uvm_reset_test
 
+// /////////////////////////////////////////////////////////////////////////////////////////////////////
+// ////////////////////////                uvm_mem_walk_test                      ////////////////////////
+// /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class uvm_mem_walk_test extends base_test;
+
+    uvm_mem_walk_seq mem_walk_test;
+
+  `uvm_component_utils(uvm_mem_walk_test)
+
+  function new(string name, uvm_component parent);
+    super.new(name, parent);
+  endfunction : new
+
+  function void build_phase(uvm_phase phase);
+      uvm_reg::include_coverage("*", UVM_NO_COVERAGE);
+      mem_walk_test = uvm_mem_walk_seq::type_id::create("mem_walk_test");
+      uvm_config_wrapper::set(this, "tb.clk_rst.agent.sequencer.run_phase", "default_sequence", clk10_rst5_seq::get_type());
+      super.build_phase(phase);
+  endfunction : build_phase
+
+  virtual task run_phase (uvm_phase phase);
+     phase.raise_objection(this, "Raising Objection to run uvm built in reset test");
+     mem_walk_test.model = tb.yapp_rm;
+     mem_walk_test.start(null);
+     phase.drop_objection(this," Dropping Objection to uvm built reset test finished");
+          
+  endtask
+
+endclass : uvm_reset_test
 
 // /////////////////////////////////////////////////////////////////////////////////////////////////////
 // ////////////////////////                Short Packet Test                    ////////////////////////
