@@ -225,6 +225,69 @@ class reg_access_test extends base_test;
 
 endclass : uvm_reset_test
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////                  reg_function_test                  ////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class reg_function_test extends base_test;
+    yapp_tx_sequencer yapp_seq;
+    yapp_012_seq yapp_012;
+    yapp_regs_c yapp_regs;
+    int rdata;
+
+    `uvm_component_utils(reg_function_test)
+
+    function new(string name, uvm_component parent);
+        super.new(name, parent);
+    endfunction : new
+
+    function void build_phase(uvm_phase phase);
+        uvm_reg::include_coverage("*", UVM_NO_COVERAGE);
+        set_type_override_by_type(yapp_packet::get_type(), short_yapp_packet::get_type());
+        uvm_config_wrapper::set(this, "tb.clk_rst.agent.sequencer.run_phase", "default_sequence", clk10_rst5_seq::get_type());
+        yapp_012 = yapp_012_seq::type_id::create("yapp_012", this);
+        uvm_config_wrapper::set(this, "tb.c?.rx_agent.sequencer.run_phase", "default_sequence", channel_rx_resp_seq::get_type());
+
+        super.build_phase(phase);
+    endfunction : build_phase
+
+    virtual task run_phase (uvm_phase phase);
+        uvm_status_e status;
+        phase.raise_objection(this, "Raising Objection to run uvm built in reset test");
+
+        yapp_regs.en_reg.write(status, 8'hff);
+        yapp_regs.en_reg.read(status, rdata);
+        `uvm_info(get_type_name(), $sformatf("en_reg router_en value: %b", rdata), UVM_LOW);
+
+        yapp_012.start(yapp_seq);
+        
+        yapp_regs.addr0_cnt_reg.read(status, rdata);
+        `uvm_info(get_type_name(), $sformatf("Couter Register addr0_cnt_reg : %d", rdata), UVM_LOW);
+        yapp_regs.addr1_cnt_reg.read(status, rdata);
+        `uvm_info(get_type_name(), $sformatf("Couter Register addr1_cnt_reg: %d", rdata), UVM_LOW);
+        yapp_regs.addr2_cnt_reg.read(status, rdata);
+        `uvm_info(get_type_name(), $sformatf("Couter Register addr2_cnt_reg: %d", rdata), UVM_LOW);
+        yapp_regs.addr3_cnt_reg.read(status, rdata);
+        `uvm_info(get_type_name(), $sformatf("Couter Register addr3_cnt_reg: %d", rdata), UVM_LOW);
+
+        yapp_regs.oversized_pkt_cnt_reg.read(status, rdata);
+        `uvm_info(get_type_name(), $sformatf("Oversized Packet Counter oversized_pkt_cnt_reg: %d", rdata), UVM_LOW);
+
+        yapp_regs.parity_err_cnt_reg.read(status, rdata);
+        `uvm_info(get_type_name(), $sformatf("Parity Error Counter parity_err_cnt_reg: %d", rdata), UVM_LOW);
+
+
+        phase.drop_objection(this," Dropping Objection to uvm built reset test finished");
+
+    endtask
+
+    function void connect_phase (uvm_phase phase);
+        yapp_seq = tb.uvc.agent.sequencer;
+        yapp_regs = tb.yapp_rm.router_yapp_regs;
+    endfunction: connect_phase
+
+endclass : uvm_reset_test
+
 // /////////////////////////////////////////////////////////////////////////////////////////////////////
 // ////////////////////////                Short Packet Test                    ////////////////////////
 // /////////////////////////////////////////////////////////////////////////////////////////////////////
