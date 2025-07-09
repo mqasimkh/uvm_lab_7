@@ -253,14 +253,24 @@ class reg_function_test extends base_test;
 
     virtual task run_phase (uvm_phase phase);
         uvm_status_e status;
+        tb.yapp_rm.default_map.set_check_on_read(1);
+        
         phase.raise_objection(this, "Raising Objection to run uvm built in reset test");
 
         yapp_regs.en_reg.write(status, 8'hff);
         yapp_regs.en_reg.read(status, rdata);
         `uvm_info(get_type_name(), $sformatf("en_reg router_en value: %b", rdata), UVM_LOW);
-
-        yapp_012.start(yapp_seq);
         
+        repeat (2) begin
+            yapp_012.start(yapp_seq);
+        end
+
+        void'(yapp_regs.en_reg.predict(status, 8'hff));
+        void'(yapp_regs.addr0_cnt_reg.predict(8'd02));
+        void'(yapp_regs.addr1_cnt_reg.predict(8'd02));
+        void'(yapp_regs.addr2_cnt_reg.predict(8'd02));
+        void'(yapp_regs.addr3_cnt_reg.predict(8'd0));
+
         yapp_regs.addr0_cnt_reg.read(status, rdata);
         `uvm_info(get_type_name(), $sformatf("Couter Register addr0_cnt_reg : %d", rdata), UVM_LOW);
         yapp_regs.addr1_cnt_reg.read(status, rdata);
@@ -275,7 +285,6 @@ class reg_function_test extends base_test;
 
         yapp_regs.parity_err_cnt_reg.read(status, rdata);
         `uvm_info(get_type_name(), $sformatf("Parity Error Counter parity_err_cnt_reg: %d", rdata), UVM_LOW);
-
 
         phase.drop_objection(this," Dropping Objection to uvm built reset test finished");
 
