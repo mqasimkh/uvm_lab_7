@@ -22,5 +22,3 @@ run the quicktest, change to this directory and execute:
 > make run_test
 
 Check the printed register hierarchy matches your expectations.
-
-

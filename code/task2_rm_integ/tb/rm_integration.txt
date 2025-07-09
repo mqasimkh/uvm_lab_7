@@ -22,4 +22,3 @@
  // connect phase:
  // set sequencer and adapter of register model
  yapp_rm.default_map.set_sequencer(hbus.masters[0].sequencer, reg2hbus);
-
