@@ -142,9 +142,9 @@ class uvm_reset_test extends base_test;
 
 endclass : uvm_reset_test
 
-// /////////////////////////////////////////////////////////////////////////////////////////////////////
-// ////////////////////////                uvm_mem_walk_test                      ////////////////////////
-// /////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////                uvm_mem_walk_test                    ////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class uvm_mem_walk_test extends base_test;
 
@@ -170,6 +170,58 @@ class uvm_mem_walk_test extends base_test;
      phase.drop_objection(this," Dropping Objection to uvm built reset test finished");
           
   endtask
+
+endclass : uvm_reset_test
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////                   reg_access_test                   ////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class reg_access_test extends base_test;
+    int rdata;
+    yapp_regs_c yapp_regs;
+
+    `uvm_component_utils(reg_access_test)
+
+    function new(string name, uvm_component parent);
+        super.new(name, parent);
+    endfunction : new
+
+    function void build_phase(uvm_phase phase);
+        uvm_reg::include_coverage("*", UVM_NO_COVERAGE);
+        uvm_config_wrapper::set(this, "tb.clk_rst.agent.sequencer.run_phase", "default_sequence", clk10_rst5_seq::get_type());
+        super.build_phase(phase);
+    endfunction : build_phase
+
+    virtual task run_phase (uvm_phase phase);
+        uvm_status_e status;
+        phase.raise_objection(this, "Raising Objection to run uvm built in reset test");
+
+        //RW Test
+        yapp_regs.en_reg.write(status, 8'h17);
+        yapp_regs.en_reg.peek(status, rdata);
+        `uvm_info(get_type_name(), $sformatf("RW TEST: Data Read from en_reg is: %h", rdata), UVM_LOW);
+
+        yapp_regs.en_reg.poke(status, 8'h15);
+        yapp_regs.en_reg.read(status, rdata);
+        `uvm_info(get_type_name(), $sformatf("RW TEST: Data Read from en_reg is: %h", rdata), UVM_LOW);
+
+        //RO Test
+        yapp_regs.addr0_cnt_reg.poke(status, 8'h55);
+        yapp_regs.addr0_cnt_reg.read(status, rdata);
+        `uvm_info(get_type_name(), $sformatf("RO TEST: Data Read from addr0_cnt_reg is %h", rdata), UVM_LOW);
+
+        yapp_regs.addr0_cnt_reg.write(status, 8'h57);
+        yapp_regs.addr0_cnt_reg.peek(status, rdata);
+        `uvm_info(get_type_name(), $sformatf("RO TEST: Data Read from addr0_cnt_reg is %h", rdata), UVM_LOW);
+
+        phase.drop_objection(this," Dropping Objection to uvm built reset test finished");
+
+    endtask
+
+    function void connect_phase (uvm_phase phase);
+        yapp_regs = tb.yapp_rm.router_yapp_regs;
+    endfunction: connect_phase
 
 endclass : uvm_reset_test
 
