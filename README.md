@@ -151,5 +151,4 @@ Printed all reg contents along with name using print method by traversing whole 
             `uvm_info("RO REG:", $sformatf("REG Name: %s   |\tReg #:  %0d |\tReg Value:  %0d", roregs[i].get_name(), i, roregs[i]), UVM_LOW)
     end
 ```
-
 ![screenshot-22d](/screenshots/22d.png)
