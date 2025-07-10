@@ -223,7 +223,7 @@ class reg_access_test extends base_test;
         yapp_regs = tb.yapp_rm.router_yapp_regs;
     endfunction: connect_phase
 
-endclass : uvm_reset_test
+endclass
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////                  reg_function_test                  ////////////////////////
@@ -295,7 +295,7 @@ class reg_function_test extends base_test;
         yapp_regs = tb.yapp_rm.router_yapp_regs;
     endfunction: connect_phase
 
-endclass : uvm_reset_test
+endclass : 
 
 // /////////////////////////////////////////////////////////////////////////////////////////////////////
 // ////////////////////////                Short Packet Test                    ////////////////////////
