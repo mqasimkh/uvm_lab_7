@@ -171,7 +171,7 @@ class uvm_mem_walk_test extends base_test;
           
   endtask
 
-endclass : uvm_reset_test
+endclass : uvm_mem_walk_test
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////                   reg_access_test                   ////////////////////////
@@ -223,7 +223,7 @@ class reg_access_test extends base_test;
         yapp_regs = tb.yapp_rm.router_yapp_regs;
     endfunction: connect_phase
 
-endclass
+endclass: reg_access_test
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////                  reg_function_test                  ////////////////////////
@@ -234,6 +234,7 @@ class reg_function_test extends base_test;
     yapp_012_seq yapp_012;
     yapp_regs_c yapp_regs;
     int rdata;
+    uvm_reg qreg[$], rwregs[$], roregs[$];
 
     `uvm_component_utils(reg_function_test)
 
@@ -265,26 +266,42 @@ class reg_function_test extends base_test;
             yapp_012.start(yapp_seq);
         end
 
-        void'(yapp_regs.en_reg.predict(status, 8'hff));
-        void'(yapp_regs.addr0_cnt_reg.predict(8'd02));
-        void'(yapp_regs.addr1_cnt_reg.predict(8'd02));
-        void'(yapp_regs.addr2_cnt_reg.predict(8'd02));
-        void'(yapp_regs.addr3_cnt_reg.predict(8'd0));
+        yapp_regs.get_registers(qreg);
 
-        yapp_regs.addr0_cnt_reg.read(status, rdata);
-        `uvm_info(get_type_name(), $sformatf("Couter Register addr0_cnt_reg : %d", rdata), UVM_LOW);
-        yapp_regs.addr1_cnt_reg.read(status, rdata);
-        `uvm_info(get_type_name(), $sformatf("Couter Register addr1_cnt_reg: %d", rdata), UVM_LOW);
-        yapp_regs.addr2_cnt_reg.read(status, rdata);
-        `uvm_info(get_type_name(), $sformatf("Couter Register addr2_cnt_reg: %d", rdata), UVM_LOW);
-        yapp_regs.addr3_cnt_reg.read(status, rdata);
-        `uvm_info(get_type_name(), $sformatf("Couter Register addr3_cnt_reg: %d", rdata), UVM_LOW);
+        foreach(qreg[i]) begin
+            if (qreg[i].get_rights() == "RO")
+                roregs.push_back(qreg[i]);
+            rwregs = qreg.find(i) with (i.get_rights() == "RW");
+        end
 
-        yapp_regs.oversized_pkt_cnt_reg.read(status, rdata);
-        `uvm_info(get_type_name(), $sformatf("Oversized Packet Counter oversized_pkt_cnt_reg: %d", rdata), UVM_LOW);
+        foreach(rwregs[i]) begin
+            `uvm_info("RW REG:", $sformatf("REG Name: %s   |\tReg #:  %0d |\tReg Value:  %0d", rwregs[i].get_name(), i, rwregs[i]), UVM_LOW)
+        end
 
-        yapp_regs.parity_err_cnt_reg.read(status, rdata);
-        `uvm_info(get_type_name(), $sformatf("Parity Error Counter parity_err_cnt_reg: %d", rdata), UVM_LOW);
+        foreach(roregs[i]) begin
+            `uvm_info("RO REG:", $sformatf("REG Name: %s   |\tReg #:  %0d |\tReg Value:  %0d", roregs[i].get_name(), i, roregs[i]), UVM_LOW)
+        end
+
+        // void'(yapp_regs.en_reg.predict(status, 8'hff));
+        // void'(yapp_regs.addr0_cnt_reg.predict(8'd02));
+        // void'(yapp_regs.addr1_cnt_reg.predict(8'd02));
+        // void'(yapp_regs.addr2_cnt_reg.predict(8'd02));
+        // void'(yapp_regs.addr3_cnt_reg.predict(8'd0));
+
+        // yapp_regs.addr0_cnt_reg.read(status, rdata);
+        // `uvm_info(get_type_name(), $sformatf("Couter Register addr0_cnt_reg : %d", rdata), UVM_LOW);
+        // yapp_regs.addr1_cnt_reg.read(status, rdata);
+        // `uvm_info(get_type_name(), $sformatf("Couter Register addr1_cnt_reg: %d", rdata), UVM_LOW);
+        // yapp_regs.addr2_cnt_reg.read(status, rdata);
+        // `uvm_info(get_type_name(), $sformatf("Couter Register addr2_cnt_reg: %d", rdata), UVM_LOW);
+        // yapp_regs.addr3_cnt_reg.read(status, rdata);
+        // `uvm_info(get_type_name(), $sformatf("Couter Register addr3_cnt_reg: %d", rdata), UVM_LOW);
+
+        // yapp_regs.oversized_pkt_cnt_reg.read(status, rdata);
+        // `uvm_info(get_type_name(), $sformatf("Oversized Packet Counter oversized_pkt_cnt_reg: %d", rdata), UVM_LOW);
+
+        // yapp_regs.parity_err_cnt_reg.read(status, rdata);
+        // `uvm_info(get_type_name(), $sformatf("Parity Error Counter parity_err_cnt_reg: %d", rdata), UVM_LOW);
 
         phase.drop_objection(this," Dropping Objection to uvm built reset test finished");
 
@@ -295,7 +312,7 @@ class reg_function_test extends base_test;
         yapp_regs = tb.yapp_rm.router_yapp_regs;
     endfunction: connect_phase
 
-endclass : 
+endclass: reg_function_test 
 
 // /////////////////////////////////////////////////////////////////////////////////////////////////////
 // ////////////////////////                Short Packet Test                    ////////////////////////

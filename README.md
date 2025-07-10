@@ -135,3 +135,21 @@ Since running yapp_short packet, so no oversized packet registered in oversized_
 Instead of manually performing operation on registers, used introspection method directly from reg model to create queue for all RW registers and all the RO registers.
 
 Printed all reg contents along with name using print method by traversing whole queue using foreach loop.
+
+```systemverilog
+    foreach(qreg[i]) begin
+        if (qreg[i].get_rights() == "RO")
+            roregs.push_back(qreg[i]);
+            rwregs = qreg.find(i) with (i.get_rights() == "RW");
+        end
+
+        foreach(rwregs[i]) begin
+            `uvm_info("RW REG:", $sformatf("REG Name: %s   |\tReg #:  %0d |\tReg Value:  %0d", rwregs[i].get_name(), i, rwregs[i]), UVM_LOW)
+        end
+
+        foreach(roregs[i]) begin
+            `uvm_info("RO REG:", $sformatf("REG Name: %s   |\tReg #:  %0d |\tReg Value:  %0d", roregs[i].get_name(), i, roregs[i]), UVM_LOW)
+    end
+```
+
+![screenshot-22d](/screenshots/22d.png)
